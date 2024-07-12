@@ -15,7 +15,9 @@ DeviceTvmSoftwareVulnerabilities
     ['Low Severity Vulnerabilities']=make_set_if(CveId, VulnerabilitySeverityLevel == "Low"),
     ['Low - Affected Software']=make_set_if(strcat(SoftwareName, " v", SoftwareVersion), VulnerabilitySeverityLevel == "Low")
     by DeviceName, DeviceId
-| extend NumCritical = array_length(['Critical Severity Vulnerabilities']), NumHigh = array_length(['Critical Severity Vulnerabilities'])
+| extend NumCritical = array_length(['Critical Severity Vulnerabilities']), NumHigh = array_length(['High Severity Vulnerabilities']), NumMedium = array_length(['Medium Severity Vulnerabilities']), NumLow = array_length(['Low Severity Vulnerabilities'])
+| extend TotalCVE = NumCritical + NumHigh + NumMedium + NumLow
 | sort by array_length(['Critical Severity Vulnerabilities']) desc
-//| project DeviceName, NumCritical, ['Critical Severity Vulnerabilities'], ['Affected Software - Critical'], DiskPaths
-| top 10 by NumCritical
+| top 10 by TotalCVE
+| project DeviceName, TotalCVE, NumCritical, NumHigh, NumMedium, NumLow, ['Critical Severity Vulnerabilities'], ['Critical - Affected Software'], ['High Severity Vulnerabilities'], ['High - Affected Software'], ['Medium Severity Vulnerabilities'], ['Medium - Affected Software'], ['Low Severity Vulnerabilities'], ['Low - Affected Software']
+
