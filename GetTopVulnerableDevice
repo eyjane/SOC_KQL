@@ -1,0 +1,21 @@
+//Credits to: https://github.com/reprise99/Sentinel-Queries/blob/main/Defender%20for%20Endpoint/Vuln-HighestExposedDevices.kql
+//Edited to get Top 10 vulnerable devices according to Number of Vulnerabilities. Added a columns for:  # of Vulnerabilities according to Severity, AffectedSoftwareName + version
+//Input: None
+//Output: (string) DeviceName, 
+          (string) [Critical/High/Medium/Low/Informational-severity] CVE_ID, 
+          (array) Affected software + software version, 
+          (int) # of CVE according to [Critical/High/Medium/Low/Informational]-severity
+DeviceTvmSoftwareVulnerabilities
+| summarize ['Critical Severity Vulnerabilities']=make_set_if(CveId, VulnerabilitySeverityLevel == "Critical"),
+    ['Critical - Affected Software']=make_set_if(strcat(SoftwareName, " v", SoftwareVersion), VulnerabilitySeverityLevel == "Critical"),
+    ['High Severity Vulnerabilities']=make_set_if(CveId, VulnerabilitySeverityLevel == "High"),
+    ['High - Affected Software']=make_set_if(strcat(SoftwareName, " v", SoftwareVersion), VulnerabilitySeverityLevel == "High"),
+    ['Medium Severity Vulnerabilities']=make_set_if(CveId, VulnerabilitySeverityLevel == "Medium"), 
+    ['Medium - Affected Software']=make_set_if(strcat(SoftwareName, " v", SoftwareVersion), VulnerabilitySeverityLevel == "Medium"),
+    ['Low Severity Vulnerabilities']=make_set_if(CveId, VulnerabilitySeverityLevel == "Low"),
+    ['Low - Affected Software']=make_set_if(strcat(SoftwareName, " v", SoftwareVersion), VulnerabilitySeverityLevel == "Low")
+    by DeviceName, DeviceId
+| extend NumCritical = array_length(['Critical Severity Vulnerabilities']), NumHigh = array_length(['Critical Severity Vulnerabilities'])
+| sort by array_length(['Critical Severity Vulnerabilities']) desc
+//| project DeviceName, NumCritical, ['Critical Severity Vulnerabilities'], ['Affected Software - Critical'], DiskPaths
+| top 10 by NumCritical
