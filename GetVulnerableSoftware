@@ -1,0 +1,23 @@
+//KQL Query: Get Vulnerability by VulnerabilitySeverity and MachineName
+//INPUT:CVE_Severity = (string) Informational/Low/Medium/High/Critical], 
+        MachineName = (string) <Defender_DeviceName>
+//OUTPUT: (string) DeviceId, 
+          (string) DeviceName, 
+          (string) VulnerabilitySeverityLevel,
+          (string) Software name and version, 
+          (array) Software location 
+
+let CVE_Severity="Critical";
+let MachineName="SOMEDEVICENAME";
+let DeviceSoftwareList_= DeviceTvmSoftwareEvidenceBeta
+| extend sSoftwareName = strcat(SoftwareName, " v", SoftwareVersion)
+| extend jSoftwareDetails = bag_pack("SoftwareName", sSoftwareName, "FolderPath", DiskPaths)
+| project DeviceId, sSoftwareName, DiskPaths;
+let VulnerableSoftwareList_ = DeviceTvmSoftwareVulnerabilities
+| where DeviceName == MachineName
+| extend VulnerabilitySeverityLevel = CVE_Severity
+| extend sSoftwareName =strcat(SoftwareName, " v", SoftwareVersion)
+| summarize by DeviceId, DeviceName, VulnerabilitySeverityLevel, sSoftwareName;
+DeviceSoftwareList_
+| lookup kind=inner VulnerableSoftwareList_ on DeviceId, $left.sSoftwareName == $right.sSoftwareName
+| project DeviceId, DeviceName, VulnerabilitySeverityLevel, sSoftwareName, DiskPaths
