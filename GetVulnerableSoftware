@@ -15,7 +15,7 @@ let DeviceSoftwareList_= DeviceTvmSoftwareEvidenceBeta
 | project DeviceId, sSoftwareName, DiskPaths;
 let VulnerableSoftwareList_ = DeviceTvmSoftwareVulnerabilities
 | where DeviceName == MachineName
-| where VulnerabilitySeverityLevel = CVE_Severity
+| where VulnerabilitySeverityLevel == CVE_Severity
 | extend sSoftwareName =strcat(SoftwareName, " v", SoftwareVersion)
 | summarize by DeviceId, DeviceName, VulnerabilitySeverityLevel, sSoftwareName;
 DeviceSoftwareList_
