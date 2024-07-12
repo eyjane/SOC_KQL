@@ -2,9 +2,10 @@
 //Edited to get Top 10 vulnerable devices according to Number of Vulnerabilities. Added a columns for:  # of Vulnerabilities according to Severity, AffectedSoftwareName + version
 //Input: None
 //Output: (string) DeviceName, 
+          (int) Total # of CVE,
+          (int) # of CVE according to [Critical/High/Medium/Low]-severity,
           (string) [Critical/High/Medium/Low/Informational-severity] CVE_ID, 
-          (array) Affected software + software version, 
-          (int) # of CVE according to [Critical/High/Medium/Low/Informational]-severity
+          (array) Affected software + software version
 DeviceTvmSoftwareVulnerabilities
 | summarize ['Critical Severity Vulnerabilities']=make_set_if(CveId, VulnerabilitySeverityLevel == "Critical"),
     ['Critical - Affected Software']=make_set_if(strcat(SoftwareName, " v", SoftwareVersion), VulnerabilitySeverityLevel == "Critical"),
